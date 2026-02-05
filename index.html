@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Granny Incident</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        #game-container {
+            position: relative;
+            width: 1000px;
+            height: 560px;
+            overflow: hidden;
+            border: 8px solid #fff;
+            border-radius: 15px;
+            /* Set the initial background image */
+            background-image: url('pic1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .bubble {
+            position: absolute;
+            background: white;
+            border: 4px solid black;
+            border-radius: 25px;
+            padding: 15px;
+            min-width: 150px;
+            max-width: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: bold;
+            font-size: 20px;
+            filter: drop-shadow(5px 5px 0px rgba(0,0,0,0.3));
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+        }
+
+        .bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -18px;
+            left: 30px;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 18px solid black;
+        }
+
+        /* Adjusted positions to fit your specific drawings */
+        #dino-bubble { top: 120px; left: 100px; }
+        #granny-bubble { top: 90px; right: 150px; }
+
+        .show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        #next-btn {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 45px;
+            font-size: 26px;
+            font-weight: bold;
+            background: #ffcc00;
+            border: 4px solid #000;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 6px 6px 0px #000;
+            z-index: 100;
+        }
+
+        #next-btn:active {
+            box-shadow: 0px 0px 0px #000;
+            transform: translate(-50%, 6px);
+        }
+
+        .shake { animation: shake 0.15s infinite; }
+        @keyframes shake {
+            0% { transform: translate(3px, 0); }
+            50% { transform: translate(-3px, 0); }
+            100% { transform: translate(3px, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="dino-bubble" class="bubble show">Welcome! Click to start the story.</div>
+        <div id="granny-bubble" class="bubble"></div>
+        <button id="next-btn">START ➔</button>
+    </div>
+
+    <audio id="chaos-music" src="sound.mp3" loop></audio>
+
+    <script>
+        const container = document.getElementById('game-container');
+        const dinoBox = document.getElementById('dino-bubble');
+        const grannyBox = document.getElementById('granny-bubble');
+        const btn = document.getElementById('next-btn');
+        const music = document.getElementById('chaos-music');
+
+        const scenes = [
+            { bg: 'pic1.jpg', dino: "Good morning, Mrs. Gable! What brings you out today?", granny: "" },
+            { bg: 'pic1.jpg', dino: "", granny: "Just looking for some lovely wild berries for my jam!" },
+            { bg: 'pic1.jpg', dino: "That sounds delicious! Will you find enough?", granny: "" },
+            { bg: 'pic1.jpg', dino: "", granny: "I hope so! It's so peaceful. Nothing could go wro—" },
+            { bg: 'pic2.jpg', dino: "LOOK OUT!!!", granny: "MY BLUEBERRIES!! AHHHHHH!", isExplosion: true },
+            { bg: 'pic3.jpg', dino: "...I guess I'm not getting any jam.", granny: "RIP", isFinal: true }
+        ];
+
+        let currentScene = -1;
+
+        function updateScene() {
+            const scene = scenes[currentScene];
+            
+            // Set Background
+            container.style.backgroundImage = "url('" + scene.bg + "')";
+            
+            // Text bubbles
+            if(scene.dino) {
+                dinoBox.innerText = scene.dino;
+                dinoBox.classList.add('show');
+            } else {
+                dinoBox.classList.remove('show');
+            }
+
+            if(scene.granny) {
+                grannyBox.innerText = scene.granny;
+                grannyBox.classList.add('show');
+            } else {
+                grannyBox.classList.remove('show');
+            }
+
+            // Explosion Logic
+            if (scene.isExplosion) {
+                container.classList.add('shake');
+                btn.style.background = "#ff3300";
+                btn.style.color = "white";
+            } else {
+                container.classList.remove('shake');
+                btn.style.background = "#ffcc00";
+                btn.style.color = "black";
+            }
+
+            btn.innerText = scene.isFinal ? "REPLAY?" : "Next ➔";
+        }
+
+        btn.addEventListener('click', () => {
+            if (music.paused) music.play();
+            
+            if (currentScene < scenes.length - 1) {
+                currentScene++;
+            } else {
+                currentScene = 0;
+            }
+            updateScene();
+        });
+    </script>
+</body>
+</html>
